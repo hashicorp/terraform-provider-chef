@@ -32,6 +32,7 @@ resource "chef_node" "example" {
 The following arguments are supported:
 
 * `name` - (Required) The unique name to assign to the node.
+* `environment_name`- (Optional) the nodes environment name (default: _default)
 * `automatic_attributes_json` - (Optional) String containing a JSON-serialized
   object containing the automatic attributes for the node.
 * `normal_attributes_json` - (Optional) String containing a JSON-serialized
