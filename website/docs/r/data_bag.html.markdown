@@ -35,4 +35,4 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `api_url` - The URL representing this data bag in the Chef server API.
+* `api_uri` - The URI representing this data bag in the Chef server API.
