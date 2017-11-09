@@ -55,7 +55,7 @@ The following arguments are supported:
 * `key_material` - (Required) The PEM-formatted private key contents belonging to
   the configured client. This is issued by the server when a new client object
   is created. May be provided via the
-  ``CHEF_PRIVATE_KEY_FILE`` environment variable.
+  ``CHEF_KEY_MATERIAL`` environment variable.
 * `allow_unverified_ssl` - (Optional) Boolean indicating whether to make
   requests to a Chef server whose SSL certicate cannot be verified. Defaults
   to ``false``.
