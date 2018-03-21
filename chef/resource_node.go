@@ -59,6 +59,14 @@ func resourceChefNode() *schema.Resource {
 					StateFunc: runListEntryStateFunc,
 				},
 			},
+			"policy_name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"policy_group": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -116,6 +124,8 @@ func ReadNode(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("name", node.Name)
 	d.Set("environment_name", node.Environment)
+	d.Set("policy_name", node.PolicyName)
+	d.Set("policy_group", node.PolicyGroup)
 
 	automaticAttrJson, err := json.Marshal(node.AutomaticAttributes)
 	if err != nil {
@@ -170,6 +180,8 @@ func nodeFromResourceData(d *schema.ResourceData) (*chefc.Node, error) {
 		Environment: d.Get("environment_name").(string),
 		ChefType:    "node",
 		JsonClass:   "Chef::Node",
+		PolicyName:  d.Get("policy_name").(string),
+		PolicyGroup: d.Get("policy_group").(string),
 	}
 
 	var err error

@@ -33,6 +33,19 @@ type ApiClientCreateResult struct {
 
 type ApiClientListResult map[string]string
 
+type ApiClientKey struct {
+	Name           string `json:"name"`
+	PublicKey      string `json:"public_key"`
+	ExpirationDate string `json:"expiration_date"`
+}
+
+type ApiClientKeyListResultItem struct {
+	Name    string `json:"name"`
+	Expired bool   `json:"expired"`
+}
+
+type ApiClientKeyListResult []ApiClientKeyListResultItem
+
 // String makes ApiClientListResult implement the string result
 func (c ApiClientListResult) String() (out string) {
 	for k, v := range c {
@@ -43,7 +56,7 @@ func (c ApiClientListResult) String() (out string) {
 
 // List lists the clients in the Chef server.
 //
-// Chef API docs: https://docs.chef.io/api_chef_server.html#id13
+// Chef API docs: https://docs.chef.io/api_chef_server.html#clients
 func (e *ApiClientService) List() (data ApiClientListResult, err error) {
 	err = e.client.magicRequestDecoder("GET", "clients", nil, &data)
 	return
@@ -51,7 +64,7 @@ func (e *ApiClientService) List() (data ApiClientListResult, err error) {
 
 // Get gets a client from the Chef server.
 //
-// Chef API docs: https://docs.chef.io/api_chef_server.html#id16
+// Chef API docs: https://docs.chef.io/api_chef_server.html#clients-name
 func (e *ApiClientService) Get(name string) (client ApiClient, err error) {
 	url := fmt.Sprintf("clients/%s", name)
 	err = e.client.magicRequestDecoder("GET", url, nil, &client)
@@ -60,7 +73,7 @@ func (e *ApiClientService) Get(name string) (client ApiClient, err error) {
 
 // Create makes a Client on the chef server
 //
-// Chef API docs: https://docs.chef.io/api_chef_server.html#id14
+// Chef API docs: https://docs.chef.io/api_chef_server.html#clients
 func (e *ApiClientService) Create(clientName string, admin bool) (data *ApiClientCreateResult, err error) {
 	post := ApiNewClient{
 		Name:  clientName,
@@ -77,12 +90,30 @@ func (e *ApiClientService) Create(clientName string, admin bool) (data *ApiClien
 
 // Put updates a client on the Chef server.
 //
-// Chef API docs: https://docs.chef.io/api_chef_server.html#id17
+// Chef API docs: https://docs.chef.io/api_chef_server.html#clients-name
 
 // Delete removes a client on the Chef server
 //
-// Chef API docs: https://docs.chef.io/api_chef_server.html#id15
+// Chef API docs: https://docs.chef.io/api_chef_server.html#clients-name
 func (e *ApiClientService) Delete(name string) (err error) {
 	err = e.client.magicRequestDecoder("DELETE", "clients/"+name, nil, nil)
+	return
+}
+
+// ListKeys lists the keys associated with a client on the Chef server.
+//
+// Chef API docs: https://docs.chef.io/api_chef_server.html#clients-client-keys
+func (e *ApiClientService) ListKeys(clientName string) (data *ApiClientKeyListResult, err error) {
+	url := fmt.Sprintf("clients/%s/keys", clientName)
+	err = e.client.magicRequestDecoder("GET", url, nil, &data)
+	return
+}
+
+// GetKey gets a client key from the Chef server.
+//
+// Chef API docs: https://docs.chef.io/api_chef_server.html#clients-client-keys-key
+func (e *ApiClientService) GetKey(clientName string, keyName string) (data *ApiClientKey, err error) {
+	url := fmt.Sprintf("clients/%s/keys/%s", clientName, keyName)
+	err = e.client.magicRequestDecoder("GET", url, nil, &data)
 	return
 }

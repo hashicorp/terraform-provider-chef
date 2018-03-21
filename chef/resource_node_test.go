@@ -66,6 +66,38 @@ func TestAccNode_basic(t *testing.T) {
 	})
 }
 
+func TestAccNode_policyfile(t *testing.T) {
+	var node chefc.Node
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccNodeCheckDestroy(&node),
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccNodeConfig_policyfile,
+				Check: resource.ComposeTestCheckFunc(
+					testAccNodeCheckExists("chef_node.testpolicyfile", &node),
+					func(s *terraform.State) error {
+
+						if expected := "terraform-acc-test-policyfile"; node.Name != expected {
+							return fmt.Errorf("wrong name; expected %v, got %v", expected, node.Name)
+						}
+						if expected := "test_policyname"; node.PolicyName != expected {
+							return fmt.Errorf("wrong policy_name; expected %v, got %v", expected, node.PolicyName)
+						}
+						if expected := "test_policygroup"; node.PolicyGroup != expected {
+							return fmt.Errorf("wrong policy_group; expected %v, got %v", expected, node.PolicyGroup)
+						}
+
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
 func testAccNodeCheckExists(rn string, node *chefc.Node) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[rn]
@@ -135,5 +167,13 @@ EOT
 }
 EOT
   run_list = ["terraform@1.0.0", "recipe[consul]", "role[foo]"]
+}
+`
+
+const testAccNodeConfig_policyfile = `
+resource "chef_node" "testpolicyfile" {
+  name = "terraform-acc-test-policyfile"
+  policy_name = "test_policyname"
+  policy_group = "test_policygroup"
 }
 `

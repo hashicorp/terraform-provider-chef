@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"path"
@@ -129,7 +130,13 @@ func NewClient(cfg *Config) (*Client, error) {
 	baseUrl, _ := url.Parse(cfg.BaseURL)
 
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: cfg.SkipSSL},
+		Proxy: http.ProxyFromEnvironment,
+		Dial: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: cfg.SkipSSL},
+		TLSHandshakeTimeout: 10 * time.Second,
 	}
 
 	c := &Client{
@@ -305,7 +312,7 @@ func (ac AuthConfig) SignRequest(request *http.Request) error {
 func PrivateKeyFromString(key []byte) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode(key)
 	if block == nil {
-		return nil, fmt.Errorf("block size invalid for '%s'", string(key))
+		return nil, fmt.Errorf("private key block size invalid")
 	}
 	rsaKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
