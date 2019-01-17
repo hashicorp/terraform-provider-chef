@@ -240,11 +240,11 @@
 			"tree": true
 		},
 		{
-			"checksumSHA1": "JKjnR1ApU6NcC79xcGaT7QRMx3A=",
+			"checksumSHA1": "vBawy+yWTvlm02mRLgGb5kKhW5M=",
 			"comment": "0.0.1-42-gea19666",
 			"path": "github.com/go-chef/chef",
-			"revision": "bf4e81635329d7a0fc8d7c858a899a72cdb69b9e",
-			"revisionTime": "2016-06-30T18:09:21Z"
+			"revision": "cfd55cf96411cfa6ea658a3904fbcb8e40843e68",
+			"revisionTime": "2018-03-20T22:55:28Z"
 		},
 		{
 			"checksumSHA1": "1K+xrZ1PBez190iGt5OnMtGdih4=",

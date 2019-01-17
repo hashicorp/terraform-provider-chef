@@ -8,8 +8,8 @@ description: |-
 
 # chef_node
 
-A [node](http://docs.chef.io/nodes.html) is a computer whose
-configuration is managed by Chef.
+A [node](http://docs.chef.io/nodes.html) is a computer whose configuration
+is managed by Chef.
 
 Although this resource allows a node to be registered, it does not actually
 configure the computer in question to interact with Chef. In most cases it
@@ -17,11 +17,16 @@ is better to use [the `chef` provisioner](/docs/provisioners/chef.html) to
 configure the Chef client on a computer and have it register itself with the
 Chef server.
 
+It is possible to associate the node with a policy file and group.  This
+resource will not manage or validate the policy components exist on the server.
+See the [policyfile](https://docs.chef.io/policyfile.html) documentation for
+further information.
+
 ## Example Usage
 
 ```hcl
 resource "chef_node" "example" {
-  name             = "example-environment"
+  name             = "example-node"
   environment_name = "${chef_environment.example.name}"
   run_list         = ["recipe[example]", "role[app_server]"]
 }
@@ -32,7 +37,7 @@ resource "chef_node" "example" {
 The following arguments are supported:
 
 * `name` - (Required) The unique name to assign to the node.
-* `environment_name`- (Optional) the nodes environment name (default: _default)
+* `environment_name`- (Optional) The node's environment name (default: _default)
 * `automatic_attributes_json` - (Optional) String containing a JSON-serialized
   object containing the automatic attributes for the node.
 * `normal_attributes_json` - (Optional) String containing a JSON-serialized
@@ -43,6 +48,8 @@ The following arguments are supported:
   object containing the override attributes for the node.
 * `run_list` - (Optional) List of strings to set as the
   [run list](https://docs.chef.io/run_lists.html) for the node.
+* `policy_name` - (Optional) The policy name to associate the node with.
+* `policy_group` - (Optional) The policy group to associate the node with.
 
 ## Attributes Reference
 
