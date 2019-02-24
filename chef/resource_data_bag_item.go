@@ -27,10 +27,6 @@ func resourceChefDataBagItem() *schema.Resource {
 				ForceNew:  true,
 				StateFunc: jsonStateFunc,
 			},
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
