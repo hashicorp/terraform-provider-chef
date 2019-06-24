@@ -1,4 +1,19 @@
-## 0.1.1 (Unreleased)
+## 0.2.0 (Unreleased)
+
+DEV UPDATES:
+
+* simplify `GNUMakefile` https://github.com/terraform-providers/terraform-provider-chef/commit/8a49a023bda622128e894cafa58e9730da215821
+* upgrade to `hashicorp/terraform` v0.10.0 [GH-12]
+* add `website` and `website-test` targets to Makefile [GH-20]
+* upgrade to Go 1.11 [GH-27]
+* switch to Go modules [GH-29]
+* upgrade to `hashicorp/terraform` v0.12.0 [GH-32]
+
+DOCS:
+
+* fix typos and missing attributes [GH-9]
+* fix typos [GH-17]
+
 ## 0.1.0 (June 20, 2017)
 
 NOTES:
