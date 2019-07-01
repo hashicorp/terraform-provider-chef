@@ -59,6 +59,9 @@ func Provider() terraform.ResourceProvider {
 			"chef_role":          resourceChefRole(),
 		},
 
+		DataSourcesMap: map[string]*schema.Resource{
+			"chef_search": dataSourceChefSearch(),
+		},
 		ConfigureFunc: providerConfigure,
 	}
 }
