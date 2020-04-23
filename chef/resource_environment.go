@@ -16,6 +16,10 @@ func resourceChefEnvironment() *schema.Resource {
 		Read:   ReadEnvironment,
 		Delete: DeleteEnvironment,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -50,6 +54,7 @@ func resourceChefEnvironment() *schema.Resource {
 	}
 }
 
+// CreateEnvironment Creates a Chef environment from resource definition
 func CreateEnvironment(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -67,6 +72,7 @@ func CreateEnvironment(d *schema.ResourceData, meta interface{}) error {
 	return ReadEnvironment(d, meta)
 }
 
+// UpdateEnvironment Modifies an existing Chef environment to match the resource definition
 func UpdateEnvironment(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -84,12 +90,13 @@ func UpdateEnvironment(d *schema.ResourceData, meta interface{}) error {
 	return ReadEnvironment(d, meta)
 }
 
+// ReadEnvironment Reads Chef environment info into the resource object, also called when importing
 func ReadEnvironment(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
 	name := d.Id()
-
 	env, err := client.Environments.Get(name)
+
 	if err != nil {
 		if errRes, ok := err.(*chefc.ErrorResponse); ok {
 			if errRes.Response.StatusCode == 404 {
@@ -104,17 +111,17 @@ func ReadEnvironment(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", env.Name)
 	d.Set("description", env.Description)
 
-	defaultAttrJson, err := json.Marshal(env.DefaultAttributes)
+	defaultAttrJSON, err := json.Marshal(env.DefaultAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("default_attributes_json", defaultAttrJson)
+	d.Set("default_attributes_json", string(defaultAttrJSON))
 
-	overrideAttrJson, err := json.Marshal(env.OverrideAttributes)
+	overrideAttrJSON, err := json.Marshal(env.OverrideAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("override_attributes_json", overrideAttrJson)
+	d.Set("override_attributes_json", string(overrideAttrJSON))
 
 	cookbookVersionsI := map[string]interface{}{}
 	for k, v := range env.CookbookVersions {
@@ -125,6 +132,7 @@ func ReadEnvironment(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// DeleteEnvironment Deletes an environment from Chef
 func DeleteEnvironment(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 

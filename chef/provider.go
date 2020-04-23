@@ -18,10 +18,11 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"server_url": {
-				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("CHEF_SERVER_URL", nil),
-				Description: "URL of the root of the target Chef server or organization.",
+				Type:         schema.TypeString,
+				Required:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("CHEF_SERVER_URL", nil),
+				Description:  "URL of the root of the target Chef server or organization.",
+				ValidateFunc: validateServerURL,
 			},
 			"client_name": {
 				Type:        schema.TypeString,
@@ -61,6 +62,14 @@ func Provider() terraform.ResourceProvider {
 
 		ConfigureFunc: providerConfigure,
 	}
+}
+
+func validateServerURL(val interface{}, key string) (warns []string, errs []error) {
+	url := val.(string)
+	if !strings.HasSuffix(url, "/") {
+		errs = append(errs, fmt.Errorf("Chef Server URL %s must end with a slash", url))
+	}
+	return
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {

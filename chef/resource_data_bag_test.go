@@ -21,6 +21,11 @@ func TestAccDataBag_basic(t *testing.T) {
 				Config: testAccDataBagConfig_basic,
 				Check:  testAccDataBagCheckExists("chef_data_bag.test", &dataBagName),
 			},
+			{
+				ResourceName:      "chef_data_bag.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

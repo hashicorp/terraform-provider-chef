@@ -17,6 +17,17 @@ constraints for which cookbook versions may be used on its nodes.
 ```hcl
 resource "chef_environment" "example" {
   name = "example-environment"
+  description = "example-description"
+
+  default_attributes_json = <<EOF
+{
+ "key": "value"
+}
+EOF
+
+  cookbook_constraints = {
+    cookbooka = ">= 1.0.5"
+  }
 }
 ```
 

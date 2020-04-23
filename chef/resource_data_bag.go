@@ -1,9 +1,8 @@
 package chef
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-
 	chefc "github.com/go-chef/chef"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceChefDataBag() *schema.Resource {
@@ -11,6 +10,10 @@ func resourceChefDataBag() *schema.Resource {
 		Create: CreateDataBag,
 		Read:   ReadDataBag,
 		Delete: DeleteDataBag,
+
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -26,6 +29,7 @@ func resourceChefDataBag() *schema.Resource {
 	}
 }
 
+// CreateDataBag Creates a Chef Data Bag
 func CreateDataBag(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -43,6 +47,7 @@ func CreateDataBag(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// ReadDataBag Reads exsting data bag from Chef, also used during import
 func ReadDataBag(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -52,7 +57,7 @@ func ReadDataBag(d *schema.ResourceData, meta interface{}) error {
 
 	name := d.Id()
 
-	_, err := client.DataBags.ListItems(name)
+	dataBagList, err := client.DataBags.List()
 	if err != nil {
 		if errRes, ok := err.(*chefc.ErrorResponse); ok {
 			if errRes.Response.StatusCode == 404 {
@@ -61,9 +66,20 @@ func ReadDataBag(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 	}
+
+	apiURL, ok := (*dataBagList)[name]
+	if !ok { // Not found
+		d.SetId("")
+		return nil
+	}
+
+	d.Set("name", name)
+	d.Set("api_uri", apiURL)
+
 	return err
 }
 
+// DeleteDataBag Deletes Chef data bag
 func DeleteDataBag(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 

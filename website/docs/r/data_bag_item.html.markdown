@@ -18,8 +18,12 @@ data bag itself, use the ``chef_data_bag`` resource.
 ## Example Usage
 
 ```hcl
+resource "chef_data_bag" "somebag" {
+    name = "somebag"
+}
+
 resource "chef_data_bag_item" "example" {
-  data_bag_name = "example-data-bag"
+  data_bag_name = chef_data_bag.somebag.name
 
   content_json = <<EOT
 {
@@ -47,3 +51,11 @@ The following attributes are exported:
 
 * `id` - The value of the "id" property in the ``content_json`` JSON object,
   which can be used by clients to retrieve this item's content.
+
+## Import
+
+Data Bag Items can be imported using `data_bag_name.item_name`, e.g.
+
+```
+$ terraform import chef_data_bag_item.example somebag.itemname
+```

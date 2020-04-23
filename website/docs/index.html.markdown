@@ -12,6 +12,8 @@ description: |-
 framework. The Chef provider allows Terraform to manage various resources
 that exist within [Chef Server](http://docs.chef.io/chef_server.html).
 
+-> **Important:** The Chef server URL must end with a slash.
+
 Use the navigation to the left to read about the available resources.
 
 ## Example Usage
