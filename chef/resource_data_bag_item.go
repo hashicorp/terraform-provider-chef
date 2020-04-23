@@ -3,6 +3,8 @@ package chef
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -14,6 +16,10 @@ func resourceChefDataBagItem() *schema.Resource {
 		Create: CreateDataBagItem,
 		Read:   ReadDataBagItem,
 		Delete: DeleteDataBagItem,
+
+		Importer: &schema.ResourceImporter{
+			State: DataBagItemImporter,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"data_bag_name": {
@@ -31,11 +37,29 @@ func resourceChefDataBagItem() *schema.Resource {
 	}
 }
 
+// DataBagItemImporter Splits ID so that ReadDataBagItem can import the data
+func DataBagItemImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	id := d.Id()
+	parts := strings.SplitN(id, ".", 2)
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		return nil, fmt.Errorf("unexpected format of ID (%s), expected databagname.itemname", id)
+	}
+
+	d.SetId(parts[1])
+	d.Set("data_bag_name", parts[0])
+	if err := ReadDataBagItem(d, meta); err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
+}
+
+// CreateDataBagItem Creates an item in a data bag in Chef
 func CreateDataBagItem(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
 	dataBagName := d.Get("data_bag_name").(string)
-	itemId, itemContent, err := prepareDataBagItemContent(d.Get("content_json").(string))
+	itemID, itemContent, err := prepareDataBagItemContent(d.Get("content_json").(string))
 	if err != nil {
 		return err
 	}
@@ -45,11 +69,12 @@ func CreateDataBagItem(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	d.SetId(itemId)
-	d.Set("id", itemId)
+	d.SetId(itemID)
+	d.Set("id", itemID)
 	return nil
 }
 
+// ReadDataBagItem Gets data bag item from Chef
 func ReadDataBagItem(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -57,10 +82,10 @@ func ReadDataBagItem(d *schema.ResourceData, meta interface{}) error {
 	// but we can try to read its items and use that as a proxy for
 	// whether it still exists.
 
-	itemId := d.Id()
+	itemID := d.Id()
 	dataBagName := d.Get("data_bag_name").(string)
 
-	value, err := client.DataBags.GetItem(dataBagName, itemId)
+	value, err := client.DataBags.GetItem(dataBagName, itemID)
 	if err != nil {
 		if errRes, ok := err.(*chefc.ErrorResponse); ok {
 			if errRes.Response.StatusCode == 404 {
@@ -82,13 +107,14 @@ func ReadDataBagItem(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// DeleteDataBagItem Deletes an item from a databag in Chef
 func DeleteDataBagItem(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
-	itemId := d.Id()
+	itemID := d.Id()
 	dataBagName := d.Get("data_bag_name").(string)
 
-	err := client.DataBags.DeleteItem(dataBagName, itemId)
+	err := client.DataBags.DeleteItem(dataBagName, itemID)
 	if err == nil {
 		d.SetId("")
 		d.Set("id", "")
@@ -96,21 +122,21 @@ func DeleteDataBagItem(d *schema.ResourceData, meta interface{}) error {
 	return err
 }
 
-func prepareDataBagItemContent(contentJson string) (string, interface{}, error) {
+func prepareDataBagItemContent(contentJSON string) (string, interface{}, error) {
 	var value map[string]interface{}
-	err := json.Unmarshal([]byte(contentJson), &value)
+	err := json.Unmarshal([]byte(contentJSON), &value)
 	if err != nil {
 		return "", nil, err
 	}
 
-	var itemId string
-	if itemIdI, ok := value["id"]; ok {
-		itemId, _ = itemIdI.(string)
+	var itemID string
+	if itemIDI, ok := value["id"]; ok {
+		itemID, _ = itemIDI.(string)
 	}
 
-	if itemId == "" {
+	if itemID == "" {
 		return "", nil, fmt.Errorf("content_json must have id attribute, set to a string")
 	}
 
-	return itemId, value, nil
+	return itemID, value, nil
 }

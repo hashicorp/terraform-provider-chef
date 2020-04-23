@@ -16,6 +16,10 @@ func resourceChefRole() *schema.Resource {
 		Read:   ReadRole,
 		Delete: DeleteRole,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -30,13 +34,11 @@ func resourceChefRole() *schema.Resource {
 			"default_attributes_json": {
 				Type:      schema.TypeString,
 				Optional:  true,
-				Default:   "{}",
 				StateFunc: jsonStateFunc,
 			},
 			"override_attributes_json": {
 				Type:      schema.TypeString,
 				Optional:  true,
-				Default:   "{}",
 				StateFunc: jsonStateFunc,
 			},
 			"run_list": {
@@ -51,6 +53,7 @@ func resourceChefRole() *schema.Resource {
 	}
 }
 
+// CreateRole Creates Chef role from resource definition
 func CreateRole(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -68,6 +71,7 @@ func CreateRole(d *schema.ResourceData, meta interface{}) error {
 	return ReadRole(d, meta)
 }
 
+// UpdateRole Updates Chef role to match resource definition
 func UpdateRole(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -85,6 +89,8 @@ func UpdateRole(d *schema.ResourceData, meta interface{}) error {
 	return ReadRole(d, meta)
 }
 
+// ReadRole Updates resource object with existing Chef role information,
+//  also called when importing a resource
 func ReadRole(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -105,17 +111,17 @@ func ReadRole(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", role.Name)
 	d.Set("description", role.Description)
 
-	defaultAttrJson, err := json.Marshal(role.DefaultAttributes)
+	defaultAttrJSON, err := json.Marshal(role.DefaultAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("default_attributes_json", defaultAttrJson)
+	d.Set("default_attributes_json", defaultAttrJSON)
 
-	overrideAttrJson, err := json.Marshal(role.OverrideAttributes)
+	overrideAttrJSON, err := json.Marshal(role.OverrideAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("override_attributes_json", overrideAttrJson)
+	d.Set("override_attributes_json", overrideAttrJSON)
 
 	runListI := make([]interface{}, len(role.RunList))
 	for i, v := range role.RunList {
@@ -126,6 +132,7 @@ func ReadRole(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// Delete Chef role
 func DeleteRole(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 

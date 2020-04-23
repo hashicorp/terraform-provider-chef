@@ -12,6 +12,10 @@ func resourceChefDataBag() *schema.Resource {
 		Read:   ReadDataBag,
 		Delete: DeleteDataBag,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -26,6 +30,7 @@ func resourceChefDataBag() *schema.Resource {
 	}
 }
 
+// CreateDataBag Creates a Chef Data Bag
 func CreateDataBag(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -43,6 +48,7 @@ func CreateDataBag(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// ReadDataBag Reads exsting data bag from Chef, also used during import
 func ReadDataBag(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -61,9 +67,12 @@ func ReadDataBag(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 	}
+
+	d.Set("name", name)
 	return err
 }
 
+// DeleteDataBag Deletes Chef data bag
 func DeleteDataBag(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
