@@ -1,5 +1,7 @@
 module github.com/terraform-providers/terraform-provider-chef
 
+go 1.14
+
 require (
 	github.com/ctdk/goiardi v0.11.9 // indirect
 	github.com/go-chef/chef v0.0.0-20160630180921-bf4e81635329
