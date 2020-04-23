@@ -62,6 +62,11 @@ func TestAccNode_basic(t *testing.T) {
 					},
 				),
 			},
+			{
+				ResourceName:      "chef_node.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -113,7 +118,7 @@ resource "chef_environment" "test" {
 }
 resource "chef_node" "test" {
   name = "terraform-acc-test-basic"
-  environment_name = "terraform-acc-test-node-basic"
+  environment_name = chef_environment.test.name
   automatic_attributes_json = <<EOT
 {
      "terraform_acc_test": true

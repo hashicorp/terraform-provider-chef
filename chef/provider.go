@@ -18,10 +18,10 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"server_url": {
-				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("CHEF_SERVER_URL", nil),
-				Description: "URL of the root of the target Chef server or organization.",
+				Type:         schema.TypeString,
+				Required:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("CHEF_SERVER_URL", nil),
+				Description:  "URL of the root of the target Chef server or organization.",
 				ValidateFunc: validateServerURL,
 			},
 			"client_name": {

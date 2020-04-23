@@ -22,8 +22,14 @@ Chef server.
 ```hcl
 resource "chef_node" "example" {
   name             = "example-environment"
-  environment_name = "${chef_environment.example.name}"
+  environment_name = chef_environment.example.name
   run_list         = ["recipe[example]", "role[app_server]"]
+  
+  automatic_attributes_json = <<EOF
+{
+ "key": "value"
+}
+EOF
 }
 ```
 

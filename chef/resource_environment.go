@@ -3,7 +3,6 @@ package chef
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
@@ -35,11 +34,13 @@ func resourceChefEnvironment() *schema.Resource {
 			"default_attributes_json": {
 				Type:      schema.TypeString,
 				Optional:  true,
+				Default:   "{}",
 				StateFunc: jsonStateFunc,
 			},
 			"override_attributes_json": {
 				Type:      schema.TypeString,
 				Optional:  true,
+				Default:   "{}",
 				StateFunc: jsonStateFunc,
 			},
 			"cookbook_constraints": {
@@ -114,13 +115,13 @@ func ReadEnvironment(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	 d.Set("default_attributes_json", defaultAttrJSON)
+	d.Set("default_attributes_json", string(defaultAttrJSON))
 
 	overrideAttrJSON, err := json.Marshal(env.OverrideAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("override_attributes_json", overrideAttrJSON)
+	d.Set("override_attributes_json", string(overrideAttrJSON))
 
 	cookbookVersionsI := map[string]interface{}{}
 	for k, v := range env.CookbookVersions {

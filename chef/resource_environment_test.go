@@ -54,6 +54,17 @@ func TestAccEnvironment_basic(t *testing.T) {
 					},
 				),
 			},
+			{
+				ResourceName:      "chef_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config:            testAccEnvironmentConfig_basic2,
+				ResourceName:      "chef_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -113,6 +124,15 @@ EOT
      "terraform_acc_test": true
 }
 EOT
+  cookbook_constraints = {
+    "terraform" = "= 1.0.0"
+  }
+}
+`
+const testAccEnvironmentConfig_basic2 = `
+resource "chef_environment" "test" {
+  name = "terraform-acc-test-basic"
+  description = "Terraform Acceptance Tests"
   cookbook_constraints = {
     "terraform" = "= 1.0.0"
   }

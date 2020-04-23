@@ -1,9 +1,8 @@
 package chef
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-
 	chefc "github.com/go-chef/chef"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceChefDataBag() *schema.Resource {
@@ -58,7 +57,7 @@ func ReadDataBag(d *schema.ResourceData, meta interface{}) error {
 
 	name := d.Id()
 
-	_, err := client.DataBags.ListItems(name)
+	dataBagList, err := client.DataBags.List()
 	if err != nil {
 		if errRes, ok := err.(*chefc.ErrorResponse); ok {
 			if errRes.Response.StatusCode == 404 {
@@ -68,7 +67,15 @@ func ReadDataBag(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	apiURL, ok := (*dataBagList)[name]
+	if !ok { // Not found
+		d.SetId("")
+		return nil
+	}
+
 	d.Set("name", name)
+	d.Set("api_uri", apiURL)
+
 	return err
 }
 

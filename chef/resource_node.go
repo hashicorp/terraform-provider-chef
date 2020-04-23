@@ -16,6 +16,10 @@ func resourceChefNode() *schema.Resource {
 		Read:   ReadNode,
 		Delete: DeleteNode,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -63,6 +67,7 @@ func resourceChefNode() *schema.Resource {
 	}
 }
 
+// CreateNode Creates a Chef Node from the resource definition
 func CreateNode(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -80,6 +85,7 @@ func CreateNode(d *schema.ResourceData, meta interface{}) error {
 	return ReadNode(d, meta)
 }
 
+// UpdateNode Updates a Chef Node to match the resource definition
 func UpdateNode(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -97,6 +103,7 @@ func UpdateNode(d *schema.ResourceData, meta interface{}) error {
 	return ReadNode(d, meta)
 }
 
+// ReadNode Updates the resource object with data retrieved from Chef
 func ReadNode(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 
@@ -117,29 +124,29 @@ func ReadNode(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", node.Name)
 	d.Set("environment_name", node.Environment)
 
-	automaticAttrJson, err := json.Marshal(node.AutomaticAttributes)
+	automaticAttrJSON, err := json.Marshal(node.AutomaticAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("automatic_attributes_json", automaticAttrJson)
+	d.Set("automatic_attributes_json", string(automaticAttrJSON))
 
-	normalAttrJson, err := json.Marshal(node.NormalAttributes)
+	normalAttrJSON, err := json.Marshal(node.NormalAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("normal_attributes_json", normalAttrJson)
+	d.Set("normal_attributes_json", string(normalAttrJSON))
 
-	defaultAttrJson, err := json.Marshal(node.DefaultAttributes)
+	defaultAttrJSON, err := json.Marshal(node.DefaultAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("default_attributes_json", defaultAttrJson)
+	d.Set("default_attributes_json", string(defaultAttrJSON))
 
-	overrideAttrJson, err := json.Marshal(node.OverrideAttributes)
+	overrideAttrJSON, err := json.Marshal(node.OverrideAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("override_attributes_json", overrideAttrJson)
+	d.Set("override_attributes_json", string(overrideAttrJSON))
 
 	runListI := make([]interface{}, len(node.RunList))
 	for i, v := range node.RunList {
@@ -150,6 +157,7 @@ func ReadNode(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+// DeleteNode Deletes a Chef Node
 func DeleteNode(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 

@@ -57,6 +57,11 @@ func TestAccRole_basic(t *testing.T) {
 					},
 				),
 			},
+			{
+				ResourceName:      "chef_role.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

@@ -34,11 +34,13 @@ func resourceChefRole() *schema.Resource {
 			"default_attributes_json": {
 				Type:      schema.TypeString,
 				Optional:  true,
+				Default:   "{}",
 				StateFunc: jsonStateFunc,
 			},
 			"override_attributes_json": {
 				Type:      schema.TypeString,
 				Optional:  true,
+				Default:   "{}",
 				StateFunc: jsonStateFunc,
 			},
 			"run_list": {
@@ -115,13 +117,13 @@ func ReadRole(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	d.Set("default_attributes_json", defaultAttrJSON)
+	d.Set("default_attributes_json", string(defaultAttrJSON))
 
 	overrideAttrJSON, err := json.Marshal(role.OverrideAttributes)
 	if err != nil {
 		return err
 	}
-	d.Set("override_attributes_json", overrideAttrJSON)
+	d.Set("override_attributes_json", string(overrideAttrJSON))
 
 	runListI := make([]interface{}, len(role.RunList))
 	for i, v := range role.RunList {
@@ -132,7 +134,7 @@ func ReadRole(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-// Delete Chef role
+// DeleteRole Delete Chef role
 func DeleteRole(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*chefc.Client)
 

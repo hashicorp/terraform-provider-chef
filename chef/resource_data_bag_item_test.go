@@ -24,6 +24,13 @@ func TestAccDataBagItem_basic(t *testing.T) {
 					"chef_data_bag_item.test", &dataBagItemName,
 				),
 			},
+			{
+				ResourceName: "chef_data_bag_item.test",
+				// Import ID needs to be bagname.item_id
+				ImportStateId:     "terraform-acc-test-bag-item-basic.terraform_acc_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -83,8 +90,7 @@ resource "chef_data_bag" "test" {
   name = "terraform-acc-test-bag-item-basic"
 }
 resource "chef_data_bag_item" "test" {
-  data_bag_name = "terraform-acc-test-bag-item-basic"
-  depends_on = ["chef_data_bag.test"]
+  data_bag_name = chef_data_bag.test.name
   content_json = <<EOT
 {
     "id": "terraform_acc_test",

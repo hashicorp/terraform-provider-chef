@@ -15,8 +15,15 @@ that can apply across multiple nodes that perform the same function.
 
 ```hcl
 resource "chef_role" "example" {
-  name     = "example-role"
-  run_list = ["recipe[example]"]
+  name        = "example-role"
+  description = "some role"
+  run_list    = ["recipe[example]"]
+
+  default_attributes_json = <<EOF
+{
+  "key": "value"
+}
+EOF
 }
 ```
 
